@@ -1,65 +1,81 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import Head from "next/head";
+import { Form, Field, ErrorMessage, withFormik } from "formik";
+import * as Yup from "yup";
 
-export default function Home() {
-  return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+import styles from "../styles/styles.module.scss";
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+const App = ({ values }) => (
+  <div className={styles.container}>
+    <Head>
+      <title>Formik Form</title>
+    </Head>
+    <Form>
+      <div className={styles.formRow}>
+        <label htmlFor="email">Email</label>
+        <Field type="email" name="email" id="email" />
+        <ErrorMessage name="email" component="span" className={styles.error} />
+      </div>
+      <div className={styles.formRow}>
+        <label htmlFor="email">Select a color to continue</label>
+        <Field component="select" name="select">
+          <option value="" label="Select a color" />
+          <option value="red" label="red" />
+          <option value="blue" label="blue" />
+          <option value="green" label="green" />
+        </Field>
+        <ErrorMessage name="select" component="span" className={styles.error} />
+      </div>
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
+      <div className={styles.formRow}>
+        <label htmlFor="checkbox">
+          <Field type="checkbox" name="checkbox" checked={values.checkbox} />
+          Accept Terms & Conditions
+        </label>
+        <ErrorMessage
+          name="checkbox"
+          component="span"
+          className={styles.error}
+        />
+      </div>
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+      <div role="group" aria-labelledby="my-radio-group">
+        <label>
+          <Field type="radio" name="radio" value="Option 1" />
+          One
+        </label>
+        <label>
+          <Field type="radio" name="radio" value="Option 2" />
+          Two
+        </label>
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+        <ErrorMessage name="radio" component="span" className={styles.error} />
+      </div>
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
+      <button type="submit" className={"disabled-btn"}>
+        Sign In
+      </button>
+    </Form>
+  </div>
+);
 
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
+const FormikApp = withFormik({
+  mapPropsToValues({ email, select, checkbox, radio }) {
+    return {
+      email: email || "",
+      select: select || "",
+      checkbox: checkbox || false,
+      radio: radio || "",
+    };
+  },
+  validationSchema: Yup.object().shape({
+    select: Yup.string().required("Color is required!"),
+    email: Yup.string().email().required("Email is required"),
+    checkbox: Yup.bool().oneOf([true], "Checkbox is required"),
+    radio: Yup.string().required("Radio is required!"),
+  }),
+  handleSubmit(values) {
+    alert(JSON.stringify(values));
+  },
+})(App);
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  )
-}
+export default FormikApp;
